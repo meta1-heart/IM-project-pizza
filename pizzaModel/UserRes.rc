@@ -1,0 +1,271 @@
+////////////////////////////////////////////////////////////////////////////
+//
+//                  НЕИЗМЕНЯЕМАЯ ЧАСТЬ ОПИСАНИЯ РЕСУРСОВ
+//
+////////////////////////////////////////////////////////////////////////////
+
+#include <Simulate.h>	 // Программный интерфейс с Pilgrim
+#include "UserHid.h"
+; Настройка главного меню
+
+MYMENU MENU
+   {
+   POPUP "Настройки"
+      {
+      POPUP "Работа со SPACE-массивами"
+         {
+         MENUITEM "Загрузка  SPACE-массива\tF2",   IDM_OPEN
+         MENUITEM "Скроллинг SPACE-массива",       IDM_SCROLLING
+         MENUITEM "Начать заполнение SPACE-массива", IDM_SAVEAS
+         MENUITEM "Прекратить заполнение SPACE-массива", IDM_STOPNEWS
+         }
+      MENUITEM "Открыть окно функциональной задачи\tF3",IDM_USERTASK
+      POPUP "Работа с ГЕО-картографией"
+         {
+         MENUITEM "Векторная карта в функциональном окне", IDM_FUNCWINDOW
+         MENUITEM "Подключение растровой ГЕО-карты", IDM_GEOTASK
+         }
+      MENUITEM "Прикрыть функциональное окно\tAlt+F3",IDM_HIDEWINDOW
+      MENUITEM "Выдвинуть панель инструментов",    IDM_OPENTB
+      MENUITEM "Убрать панель инструментов",       IDM_CLOSETB
+      MENUITEM "Включить/Выключить музыкальное сопровождение",IDM_SOUND
+      MENUITEM "Выход в Windows\tAlt+F4",          IDM_EXIT
+	  }
+   POPUP "Моделирование"
+      {
+      MENUITEM "Запуск модели\tF4",                IDM_START
+      MENUITEM "Принудительная аварийная остановка модели\tEsc",IDM_QUIT
+      MENUITEM "Приостановка\tF5",                 IDM_STOP
+      MENUITEM "Продолжение\tF6",                  IDM_CONTINUE
+      MENUITEM "Переход к трассировке\tF7",        IDM_TRACE
+      MENUITEM "Запуск с трассировкой\tAlt+F7",    IDM_TRBEG
+      MENUITEM "Управление масштабом времени\tF8", IDM_SCORE
+      MENUITEM "Запуск с установкой масштаба\tAlt+F8",IDM_SCBEG
+      }
+   POPUP "Результаты"
+      {
+      MENUITEM "Параметры узла\tF9",               IDM_KNOT
+      MENUITEM "Динамика задержек в очереди\tF10", IDM_QUEUE
+      MENUITEM "Динамика потока\tF11",             IDM_FLOW
+      MENUITEM "Построение пространства\tF12",     IDM_SPACE
+      }
+   POPUP "Помощь"
+      {
+      MENUITEM "Клавиши-акселераторы\tF1",         IDM_HELP
+      MENUITEM "Управление трассировкой\tAlt+F1",  IDM_HELP1
+      MENUITEM "Управление масштабом времени\tF8", IDM_HELP2
+      MENUITEM "О программном продукте",           IDM_HELP3
+      }
+   }
+
+; Настройка акселераторов
+
+MYACCE ACCELERATORS
+{
+	VK_F2, IDM_OPEN,      VIRTKEY
+	VK_F3, IDM_USERTASK,  VIRTKEY
+    VK_F3, IDM_HIDEWINDOW,VIRTKEY,ALT
+	27,    IDM_QUIT,      ASCII
+	VK_F4, IDM_START,     VIRTKEY
+	VK_F4, IDM_EXIT,      VIRTKEY,ALT
+	VK_F5, IDM_STOP,      VIRTKEY
+	VK_F6, IDM_CONTINUE,  VIRTKEY
+	VK_F7, IDM_TRACE,     VIRTKEY
+	VK_F7, IDM_TRBEG,     VIRTKEY,ALT
+	VK_F8, IDM_SCORE,     VIRTKEY
+	VK_F8, IDM_SCBEG,     VIRTKEY,ALT
+	VK_F9, IDM_KNOT,      VIRTKEY
+	VK_F10,IDM_QUEUE,     VIRTKEY
+	VK_F11,IDM_FLOW,      VIRTKEY
+	VK_F12,IDM_SPACE,     VIRTKEY
+	VK_F1, IDM_HELP,      VIRTKEY
+	VK_F1, IDM_HELP1,     VIRTKEY,ALT
+}
+
+; Объявление панели инструментов
+
+IDTB_BMP BITMAP Palette.bmp
+
+; Объявление иконки
+
+MYICON ICON Pilgrim.ico
+
+; Диалог для управления трассировкой
+
+TRF DIALOG 50,50,178,16
+CAPTION "Введите параметры трассировки"
+STYLE WS_POPUP | WS_CAPTION
+{
+	PUSHBUTTON    "Настроили",IDCANCEL,2,2,50,12,
+		 BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	PUSHBUTTON    "Ввод",IDOK,54,2,50,12,
+		 BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	EDITTEXT IDM_TRACEPRM, 106,2,70,12,ES_LEFT |ES_AUTOHSCROLL |
+		 WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+}
+
+; Диалог для ввода масштаба времени
+
+TRS DIALOG 50,50,178,16
+CAPTION "Введите масштаб времени (в секундах)"
+STYLE WS_POPUP | WS_CAPTION
+{
+	PUSHBUTTON    "Настроили",IDCANCEL,2,2,50,12,
+		 BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	PUSHBUTTON    "Ввод",IDOK,54,2,50,12,
+		 BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	EDITTEXT IDM_SCOREPRM, 106,2,70,12,ES_LEFT |ES_AUTOHSCROLL |
+		 WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+}
+
+; Диалог со спином для выбора номера узла
+
+SPIN DIALOG 50,50,132,16
+CAPTION "Выберите или введите номер узла модели"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+{
+	PUSHBUTTON    "Выбрали",IDCANCEL,93,2,37,12,
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	PUSHBUTTON    "Ввод",IDOK,46,2,37,12,
+		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	EDITTEXT ID_ESPIN, 2,2,37,12,ES_LEFT | ES_AUTOHSCROLL |
+		WS_CHILD | WS_VISIBLE | WS_BORDER
+}
+
+; Диалог с проводником
+
+STRINGTABLE
+BEGIN
+   IDS_FILTERS "SPACE-пространства (*.SPA)|*.spa|Оптимизированные файлы(*.OPT)|*.opt|Тексты и программы Visual С++ (*.CPP)|*.cpp|Все файлы (*.*)|*.*|"
+   IDS_GEOFILTERS "Растровые ГЕО-карты (*.MAP)|*.map|Пункты триангуляции (*.SET)|*.set|Все файлы (*.*)|*.*|"
+   IDS_TREANGFILTERS "Пункты триангуляции (*.SET)|*.set|Растровые ГЕО-карты (*.MAP)|*.map|Все файлы (*.*)|*.*|"
+   IDS_SOIFILTER "SPACE-пространства (*.SPA)|*.spa|"
+END
+
+; Диалог скроллинга GIS-массива  
+
+SCROLL DIALOG 20, 20, WND_WIDTH, WND_HEIGHT
+CAPTION "   Просмотр масcива SPACE"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   {
+   GROUPBOX  "Позиция слайдера", ID_GB1, 2, 2, WND_WIDTH-17, WND_HEIGHT-3
+   SCROLLBAR ID_SB1, WND_WIDTH-12, 6, 10, WND_HEIGHT-8, SBS_VERT | WS_TABSTOP
+   }
+
+; Диалог привязки карты
+
+TREANGLEBOX DIALOG DISCARDABLE  10, 10, 231, 129
+STYLE WS_POPUP | WS_CAPTION
+CAPTION "Привязка карты к ГЕО-координатам"
+BEGIN
+   GROUPBOX "Пункт местности",1000,5,5,182,30,WS_TABSTOP
+   LTEXT    "Название:",-1,10,20,50,8,NOT WS_GROUP
+   EDITTEXT TM_TITLE,50,18,132,12
+   GROUPBOX "Широта",1001,  5,35,182,30,WS_TABSTOP
+   LTEXT    "Градусы:",-1, 10,50,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LATGRA,     45,48,25,12    
+   LTEXT    "Минуты:",-1,  75,50,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LATMIN,    107,48,17,12    
+   LTEXT    "Секунды:",-1,129,50,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LATSEC,    165,48,17,12    
+   GROUPBOX "Долгота",1002,5,65,182,30,WS_TABSTOP
+   LTEXT    "Градусы:",-1, 10,80,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LONGRA,     45,78,25,12    
+   LTEXT    "Минуты:",-1,  75,80,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LONMIN,    107,78,17,12    
+   LTEXT    "Секунды:",-1,129,80,40, 8,NOT WS_GROUP
+   EDITTEXT TM_LONSEC,    165,78,17,12    
+   GROUPBOX "Декартовы координаты",1003,5,95,98,30,WS_TABSTOP
+   LTEXT    "X:",      -1,  10,110,20, 8,NOT WS_GROUP
+   EDITTEXT TM_DX,          20,108,32,12    
+   LTEXT    "Y:",      -1,  56,110,20, 8,NOT WS_GROUP
+   EDITTEXT TM_DY,          66,108,32,12    
+   GROUPBOX "Статус пункта",1004,105,95,82,30,WS_TABSTOP
+   LTEXT    "Символ:", -1,109,110,30, 8,NOT WS_GROUP
+   EDITTEXT TM_DC,        165,108,17,12    
+   PUSHBUTTON "Готово",IDOK,    192, 9,34,12
+   PUSHBUTTON "Отмена",IDCANCEL,192,23,34,12
+END
+
+; Диалог ввода SPACE-информации
+
+SPACEINFORM DIALOG DISCARDABLE  10, 10, 231, 99
+STYLE WS_POPUP | WS_CAPTION
+CAPTION "Ввод информации о пункте"
+BEGIN
+   GROUPBOX "Пункт местности",501,5,5,182,30,WS_TABSTOP
+   LTEXT    "Название:",-1,10,20,50,8,NOT WS_GROUP
+   EDITTEXT SM_TITLE,47,18,135,12
+   GROUPBOX "Параметры пункта",502,5,35,182,30,WS_TABSTOP
+   LTEXT    "P1:",  -1, 10,50,25, 8,NOT WS_GROUP
+   EDITTEXT SM_P1, 22,48,50,12    
+   LTEXT    "P2:",-1,75,50,75, 8,NOT WS_GROUP
+   EDITTEXT SM_P2, 87,48,50,12    
+   LTEXT    "Статус:",-1,140,50,40, 8,NOT WS_GROUP
+   EDITTEXT SM_STATUS,    166,48,16,12    
+   GROUPBOX "ГЕО-координаты пункта",503,5,65,182,30,WS_TABSTOP
+   LTEXT    "Широта:", -1, 10,80,40, 8,NOT WS_GROUP
+   EDITTEXT SM_LAT,     39,78,50,12    
+   LTEXT    "Долгота:",-1,100,80,40, 8,NOT WS_GROUP
+   EDITTEXT SM_LON,    132,78,50,12    
+   PUSHBUTTON "Готово",IDOK,    192, 9,34,12
+   PUSHBUTTON "Отмена",IDCANCEL,192,23,34,12
+END
+
+////////////////////////////////////////////////////////////////////////////
+//
+//                  ИЗМЕНЯЕМАЯ ЧАСТЬ МАКЕТА
+//
+////////////////////////////////////////////////////////////////////////////
+
+PARMBOX DIALOG DISCARDABLE  1, 1, 315, 245
+STYLE WS_POPUP | WS_CAPTION
+CAPTION "Диалоговая настройка модели"
+BEGIN
+    GROUPBOX        "Параметры бизнес-процесса",100,5,3,245,25,WS_TABSTOP
+    LTEXT           "Разработчики",-1,8,14,51,8,NOT WS_GROUP
+    EDITTEXT        DM_TITLE,66,12,173,12,ES_READONLY
+    LTEXT           "Единица времени 1 минута",-1,5,34,118,8,NOT 
+                    WS_GROUP
+    LTEXT           "Время моделирования   ",-1,63,50,95,8,NOT 
+                    WS_GROUP
+    LTEXT           "Количество машин ",-1,212,74,79,8,NOT WS_GROUP
+    LTEXT           "Время работы ",-1,210,134,95,8,NOT WS_GROUP
+    LTEXT           "Отклонение работы ",-1,211,149,95,8,NOT 
+                    WS_GROUP
+    LTEXT           "Max количество машин ",-1,50,73,81,8,NOT 
+                    WS_GROUP
+    LTEXT           "Время проезда ",-1,49,87,77,8,NOT WS_GROUP
+    LTEXT           "Отклонение",-1,50,102,74,8,NOT WS_GROUP
+    LTEXT           "Max количество машин ",-1,49,132,82,8,NOT 
+                    WS_GROUP
+    LTEXT           "Время проезда ",-1,49,147,84,8,NOT WS_GROUP
+    LTEXT           "Отклонение",-1,49,163,84,8,NOT WS_GROUP
+    LTEXT           "Max количество машин ",-1,47,197,80,8,NOT 
+                    WS_GROUP
+    LTEXT           "Время проезда",-1,47,212,72,8,NOT WS_GROUP
+    LTEXT           "Отклонение",-1,48,227,80,8,NOT WS_GROUP
+    LTEXT           "Вероятность поломки ",-1,212,87,95,8,NOT 
+                    WS_GROUP
+    EDITTEXT        DM_P1,6,47,55,12
+    EDITTEXT        DM_P2,173,72,37,12
+    EDITTEXT        DM_P3,174,133,35,12
+    EDITTEXT        DM_P4,174,147,35,12
+    EDITTEXT        DM_P5,8,71,41,12
+    EDITTEXT        DM_P6,8,85,41,12
+    EDITTEXT        DM_P7,8,100,41,12
+    EDITTEXT        DM_P8,8,130,39,12
+    EDITTEXT        DM_P9,8,145,39,12
+    EDITTEXT        DM_P10,8,161,39,12
+    EDITTEXT        DM_P11,7,195,39,12
+    EDITTEXT        DM_P12,7,210,39,12
+    EDITTEXT        DM_P13,7,225,39,12
+    EDITTEXT        DM_P14,173,86,36,12
+    PUSHBUTTON      "Готово",IDOK,265,7,34,12
+    PUSHBUTTON      "Отмена",IDCANCEL,265,21,34,12
+    GROUPBOX        "1 маршрут",-1,4, 62,132,57
+    GROUPBOX        "2 маршрут",-1,3,121,132,57
+    GROUPBOX        "3 маршрут",-1,4,184,132,57
+    GROUPBOX        "Парк",     -1,169, 63,139,44
+    GROUPBOX        "Диспетчер",-1,169,122,139,44
+END
